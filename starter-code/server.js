@@ -1,5 +1,7 @@
 'use strict';
-// TODO: Install and require the node postgres package into your server.js, and ensure that it's now a new dependency in your package.json
+// DONE: Install and require the node postgres package into your server.js, and ensure that it's now a new dependency in your package.json
+const pg = require('pg');
+
 
 const express = require('express');
 // REVIEW: Require in body-parser for post requests in our server
@@ -8,7 +10,8 @@ const PORT = process.env.PORT || 3000;
 const app = express();
 // REVIEW: Create a connection string for the url that will connect to our local postgres database
 const conString = process.env.DATABASE_URL || 'postgres://localhost:5432';
-
+//above string (after the ||) is how we access database... that's why it's got a separate port, using postgres protocol
+//5432 is default port for working with postgres
 // REVIEW: Install the middleware plugins so that our app is aware and can use the body-parser module
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({extended: true}));
@@ -42,14 +45,22 @@ app.get('/articles/all', function(request, response) {
 
 app.post('/articles/insert', function(request, response) {
   console.log(request.body.article);
-  let client = new pg.Client(conString)
-
+  let client = new pg.Client(conString);
+//create ajax request in console to check if these things are working and what they are passing
   client.connect(function(err) {
     if (err) console.error(err);
-
-    client.query(
-      ``, // TODO: Write the SQL query to insert a new record
-      [], // TODO: Get each value from the request's body
+// TODO: Write the SQL query to insert a new record sql statement
+// TODO: Get each value from the request's body values passed from query
+    // client.query(`INSERT INTO articles (title, category, author, authorUrl, publishedOn, body) VALUES (${request.body.title}, ${request.body.author}, ${request.body.authorUrl}, ${request.body.category}, ${request.body.publishedOn}, ${request.body.body});`,
+    client.query(`INSERT INTO articles(title, author, "authorUrl", category, "publishedOn", body) VALUES ($1, $2, $3, $4, $5, $6);`,
+      [
+        request.body.title,
+        request.body.author,
+        request.body.authorUrl,
+        request.body.category,
+        request.body.publishedOn,
+        request.body.body
+      ],
       function(err) {
         if (err) console.error(err);
         client.end();
