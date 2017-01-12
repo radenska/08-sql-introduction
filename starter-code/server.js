@@ -9,7 +9,7 @@ const bodyParser = require('body-parser');
 const PORT = process.env.PORT || 3000;
 const app = express();
 // REVIEW: Create a connection string for the url that will connect to our local postgres database
-const conString = process.env.DATABASE_URL || 'postgres://localhost:5432';
+const conString = process.env.DATABASE_URL || 'postgres://postgres:deathcrush@localhost:5432/postgres';
 //above string (after the ||) is how we access database... that's why it's got a separate port, using postgres protocol
 //5432 is default port for working with postgres
 // REVIEW: Install the middleware plugins so that our app is aware and can use the body-parser module
@@ -49,15 +49,15 @@ app.post('/articles/insert', function(request, response) {
 //create ajax request in console to check if these things are working and what they are passing
   client.connect(function(err) {
     if (err) console.error(err);
-// TODO: Write the SQL query to insert a new record sql statement
-// TODO: Get each value from the request's body values passed from query
+// DONE:Write the SQL query to insert a new record sql statement
+// DONE: Get each value from the request's body values passed from query
     // client.query(`INSERT INTO articles (title, category, author, authorUrl, publishedOn, body) VALUES (${request.body.title}, ${request.body.author}, ${request.body.authorUrl}, ${request.body.category}, ${request.body.publishedOn}, ${request.body.body});`,
-    client.query(`INSERT INTO articles(title, author, "authorUrl", category, "publishedOn", body) VALUES ($1, $2, $3, $4, $5, $6);`,
+    client.query(`INSERT INTO articles(title, category,  author, "authorUrl", "publishedOn", body) VALUES ($1, $2, $3, $4, $5, $6);`,
       [
         request.body.title,
+        request.body.category,
         request.body.author,
         request.body.authorUrl,
-        request.body.category,
         request.body.publishedOn,
         request.body.body
       ],
@@ -77,8 +77,15 @@ app.put('/articles/update', function(request, response) {
     if (err) console.error(err);
 
     client.query(
-      ``, // TODO: Write the SQL query to update an existing record
-      [], // TODO: Get each value from the request's body
+      `UPDATE articles SET title=$1, category=$2, author=$3, author=$4, authorUrl=$5, publichedOn=$6 WHERE title= $1;`, // TODO: Write the SQL query to update an existing record
+            [   request.body.title,
+                request.body.category,
+                request.body.author,
+                request.body.authorUrl,
+                request.body.publishedOn,
+                request.body.body
+
+      ], // DONE: Get each value from the request's body
       function(err) {
         if (err) console.error(err);
         client.end();
@@ -95,7 +102,9 @@ app.delete('/articles/delete', function(request, response) {
     if (err) console.error(err);
 
     client.query(
-      ``, // TODO: Write the SQL query to delete a record
+       `DELETE FROM articles WHERE title= ${request.body.title};`,
+      //  DONE:
+      //  Write the SQL query to delete a record
       function(err) {
         if (err) console.error(err);
         client.end();
@@ -112,7 +121,8 @@ app.delete('/articles/truncate', function(request, response) {
     if (err) console.error(err);
 
     client.query(
-      '', // TODO: Write the SQl query to truncate the table
+      'TRUNCATE TABLE articles;',
+      // DONE: Write the SQl query to truncate the table
       function(err) {
         if (err) console.error(err);
         client.end();

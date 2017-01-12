@@ -7,8 +7,8 @@ const Pool = pg.Pool
 const ops = module.exports = {}
 
 const pool = new Pool({
-  user: process.env.USER,
-  password: '',
+  user: 'Adrian',
+  password: 'deathcrush',
   host: 'localhost',
   database: process.env.USER,
   max: 10,
